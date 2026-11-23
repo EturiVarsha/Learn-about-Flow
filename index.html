@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Make sense of FLOW</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf6ee;--ink:#2b0d0d;--mute:#6f6a66;--coral:#f9a190;--teal:#8bcfd0;--mustard:#f8c44d;--pink:#dd869f;--indigo:#5555fa;--card-ink:#1b1209;--btn:#1b1209;--btn-ink:#fffaf0;--box:rgba(255,255,255,.55);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17110f;--ink:#fbe9e4;--mute:#a79f9a}}
+:root[data-theme="dark"]{--bg:#17110f;--ink:#fbe9e4;--mute:#a79f9a}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.5 Inter,system-ui,sans-serif}
+main{max-width:620px;margin:0 auto;padding:28px 20px 48px}
+h1,h2{font-family:Fraunces,Georgia,serif;font-weight:900;letter-spacing:-.01em;line-height:1.08;margin:0}
+h1{font-size:clamp(40px,11vw,62px)}
+.sub{color:var(--mute);font-size:15px;max-width:44ch;margin:16px 0 28px}
+.progress{display:flex;gap:4px;margin-bottom:16px}
+.progress i{flex:1;height:6px;border-radius:3px;background:rgba(127,127,127,.25)}
+.progress i.on{background:var(--ink)}
+.card{border-radius:22px;padding:24px 22px 26px;color:var(--card-ink);background:var(--c)}
+.card svg{width:92px;height:92px;display:block;margin-bottom:6px}
+.theme{font-size:14px;font-weight:600;margin:0 0 6px;opacity:.8}
+.card h2{font-size:clamp(24px,6.4vw,31px);margin-bottom:20px}
+.opts{display:grid;gap:10px}
+.opt{font:500 16px/1.35 Inter,sans-serif;text-align:left;color:var(--card-ink);background:var(--box);border:2px solid transparent;border-radius:14px;padding:14px 16px;cursor:pointer}
+.opt:hover{border-color:var(--card-ink)}
+.opt[aria-pressed="true"]{background:var(--card-ink);color:#fffaf0}
+.card.indigo{--card-ink:#fff;--box:rgba(255,255,255,.16)}
+.card.indigo .opt[aria-pressed="true"]{background:#fff;color:#1b1209}
+.card.indigo .opt:hover{border-color:#fff}
+textarea{width:100%;min-height:130px;border-radius:14px;border:2px solid transparent;background:var(--box);padding:14px 16px;font:400 16px/1.45 Inter,sans-serif;color:var(--card-ink);resize:vertical}
+.card.indigo textarea{color:#fff}
+.card.indigo textarea::placeholder{color:rgba(255,255,255,.7)}
+textarea::placeholder{color:rgba(27,18,9,.55)}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--card-ink);outline-offset:2px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px}
+.btn{font:600 16px Inter,sans-serif;border:0;border-radius:999px;padding:14px 26px;background:var(--btn);color:var(--btn-ink);cursor:pointer}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);padding:14px 6px;text-decoration:underline}
+.res{background:var(--mustard);color:var(--card-ink);border-radius:22px;padding:28px 22px}
+.res h2{font-size:clamp(34px,9vw,50px);margin:6px 0 12px}
+.meter{height:14px;border-radius:7px;background:rgba(255,255,255,.6);margin:18px 0 6px;overflow:hidden}
+.meter b{display:block;height:100%;background:var(--card-ink);border-radius:7px;width:0;transition:width .9s ease}
+.ans{margin-top:22px;display:grid;gap:12px}
+.ans div{background:var(--card-bg,var(--c));color:var(--card-ink);border-radius:16px;padding:14px 16px}
+.ans small{display:block;font-weight:600;margin-bottom:4px;opacity:.8}
+.ans .indigo{color:#fff}
+.tease{margin-top:22px;color:var(--mute);font-size:15px}
+@media (prefers-reduced-motion:reduce){.meter b{transition:none}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+var coral='#f9a190',teal='#8bcfd0',mustard='#f8c44d',pink='#dd869f',indigo='#5555fa';
+var S='stroke="currentColor" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+var ICON={
+sun:'<svg viewBox="0 0 100 100" '+S+'><circle cx="50" cy="52" r="16" fill="#fff"/><path d="M50 18v8M50 78v8M16 52h8M76 52h8M26 28l6 6M68 70l6 6M74 28l-6 6M32 70l-6 6"/></svg>',
+heart:'<svg viewBox="0 0 100 100" '+S+'><path d="M50 80C20 58 18 34 34 28c8-3 14 1 16 8 2-7 8-11 16-8 16 6 14 30-16 52z" fill="#fff"/><path d="M14 20l6 6M86 20l-6 6M50 10v8"/></svg>',
+bolt:'<svg viewBox="0 0 100 100" '+S+'><path d="M56 10L26 56h22l-6 34 32-48H52z" fill="#fff"/><path d="M12 30l8 4M84 66l8 4"/></svg>',
+eye:'<svg viewBox="0 0 100 100" '+S+'><path d="M8 52C24 28 76 28 92 52 76 76 24 76 8 52z" fill="#fff"/><circle cx="50" cy="52" r="12"/><circle cx="50" cy="52" r="3" fill="currentColor"/></svg>',
+bulb:'<svg viewBox="0 0 100 100" '+S+'><path d="M34 60c-12-10-10-36 16-36s28 26 16 36v10H34z" fill="#fff"/><path d="M40 82h20M44 90h12M50 6v6M18 20l5 5M82 20l-5 5"/></svg>'};
+var T={
+what:{n:'What is flow?',c:coral,i:'sun',k:''},
+why:{n:'Why this book?',c:mustard,i:'heart',k:''},
+chal:{n:'The challenges',c:teal,i:'bolt',k:''},
+home:{n:'Bringing it home',c:pink,i:'eye',k:''},
+get:{n:'Getting into flow',c:indigo,i:'bulb',k:'indigo'}};
+var Q=[
+{t:'what',q:'In your own words, what do you think flow is?',open:'No wrong answers. Write what comes to mind first.'},
+{t:'what',q:'Which sounds closest to flow?',o:[['Being very busy',0],['Being deeply absorbed, with time vanishing',0],['Feeling relaxed and carefree',0],['Working very hard under pressure',0]]},
+{t:'why',q:'Why do you think we’re using a book about action and adventure athletes to talk about flow?',open:'Take a guess. What could they show us that an office or a classroom can’t?'},
+{t:'why',q:'What do you expect these athletes to teach the rest of us?',o:[['How to take bigger risks',0],['How to focus completely',0],['How to practice for years without quitting',0],['How to enjoy the moment',0]]},
+{t:'chal',q:'What do you think is the hardest part of action and adventure sports?',o:[['Managing fear and risk',0],['The years of training',0],['Staying focused when everything is on the line',0],['Getting back up after a fall',0]]},
+{t:'chal',q:'Which of those challenges do you face in your own work or life, in a smaller form?',open:'Describe a time it showed up for you.'},
+{t:'home',q:'How could we bring the ideas of this book into everyday life?',open:'Think of mornings, meetings, studying, chores, hobbies.'},
+{t:'home',q:'Where would you try it first?',o:[['At work or school',0],['In a creative hobby',0],['In sport or fitness',0],['In everyday routines',0]]},
+{t:'get',q:'What do you think helps you slip into flow?',o:[['A clear goal for the session',0],['A task that’s just a little hard',0],['No distractions',0],['Quick feedback on how I’m doing',0]]},
+{t:'get',q:'If you’re not in flow right now, what is one small step that could get you there this week?',open:'Make it small enough to do tomorrow.'}
+];
+var i=0,A=[],app=document.getElementById('app');
+function el(h){return h}
+function intro(){
+app.innerHTML='<h1>Make sense of FLOW</h1><p class="sub">Ten questions to get you thinking about flow, the book, and how it could show up in your own days. Take your time. There are no wrong answers, and you finish with a plan you wrote yourself.</p><button class="btn" id="go">Start</button>';
+document.getElementById('go').onclick=function(){i=0;A=[];show()};
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function show(){
+var q=Q[i],th=T[q.t],p='';
+for(var k=0;k<Q.length;k++)p+='<i class="'+(k<=i?'on':'')+'"></i>';
+var body='';
+if(q.open){body='<textarea id="ta" placeholder="'+esc(q.open)+'" aria-label="Your answer">'+esc(A[i]&&A[i].text||'')+'</textarea>'}
+else{body='<div class="opts">'+q.o.map(function(o,j){return '<button class="opt" aria-pressed="'+(A[i]&&A[i].idx===j)+'" data-j="'+j+'">'+o[0]+'</button>'}).join('')+'</div>'}
+app.innerHTML='<div class="progress" aria-label="Question '+(i+1)+' of '+Q.length+'">'+p+'</div>'+
+'<section class="card '+th.k+'" style="--c:'+th.c+'">'+ICON[th.i]+'<p class="theme">'+th.n+'</p><h2>'+q.q+'</h2>'+body+'</section>'+
+'<div class="nav"><button class="btn ghost" id="back"'+(i?'':' hidden')+'>Back</button><button class="btn" id="next">'+(i==Q.length-1?'See my plan':(q.open?'Next':'Next'))+'</button></div>';
+var next=document.getElementById('next');
+if(!q.open){next.disabled=!(A[i]);
+[].forEach.call(app.querySelectorAll('.opt'),function(b){b.onclick=function(){var j=+b.dataset.j;A[i]={idx:j,score:q.o[j][1],text:q.o[j][0]};show()}})}
+next.onclick=function(){if(q.open){A[i]={text:document.getElementById('ta').value.trim(),score:0}}i++;i<Q.length?show():result();window.scrollTo(0,0)};
+document.getElementById('back').onclick=function(){if(q.open)A[i]={text:document.getElementById('ta').value,score:0};i--;show()};
+}
+function result(){
+var ans='';
+Q.forEach(function(q,k){if(A[k]&&A[k].text){var th=T[q.t];ans+='<div class="'+th.k+'" style="--c:'+th.c+'"><small>'+q.q+'</small>'+esc(A[k].text)+'</div>'}});
+app.innerHTML='<section class="res"><p class="theme">Your answers</p><h2>Your flow plan</h2><p style="margin:0">You’ve now put your own ideas about flow on the page. Hold on to them, then compare them with what the book says.</p></section>'+
+'<div class="ans">'+ans+'</div><p class="tease">Pick one answer you’d like to share with the group, and try your small step this week.</p><div class="nav"><button class="btn ghost" id="again">Start over</button></div>';
+document.getElementById('again').onclick=intro;
+}
+intro();
+</script>
+</body>
+</html>
